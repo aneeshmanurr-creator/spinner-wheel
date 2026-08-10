@@ -32,8 +32,57 @@ let original=[...PRESET_SEQUENCE],active=[...PRESET_SEQUENCE],pos=0,rot=0,busy=f
 const colors=["#ff5c7a","#5b8cff","#ffc857","#46d7a5","#b56cff","#ff8a4c","#45c6e8","#ef6fff","#8bd450","#ffcf5a"];
 function draw(){let n=active.length;if(!n)return;ctx.clearRect(0,0,1000,1000);let s=2*Math.PI/n,r=455;ctx.save();ctx.translate(500,500);ctx.rotate(rot);
 for(let i=0;i<n;i++){let a=-Math.PI/2+i*s,b=a+s;ctx.beginPath();ctx.moveTo(0,0);ctx.arc(0,0,r,a,b);ctx.closePath();ctx.fillStyle=colors[i%colors.length];ctx.fill();ctx.strokeStyle="#fff";ctx.lineWidth=6;ctx.stroke();ctx.save();ctx.rotate(a+s/2);ctx.textAlign="right";ctx.fillStyle="#fff";ctx.font="900 "+Math.max(24,Math.min(56,600/n))+"px Arial";ctx.shadowColor="#000";ctx.shadowBlur=5;ctx.fillText(String(active[i]).slice(0,18),r-38,18);ctx.restore()}ctx.restore()}
-function spinWheel(){if(busy)return;busy=true;spin.disabled=true;let n=active.length,i=pos%n,s=2*Math.PI/n,targetCenter=-Math.PI/2+(i+.5)*s,desired=-targetCenter,current=((rot%(2*Math.PI))+2*Math.PI)%(2*Math.PI),delta=((desired-current)%(2*Math.PI)+2*Math.PI)%(2*Math.PI)+(5+Math.floor(Math.random()*3))*2*Math.PI,start=rot,end=rot+delta,t0=performance.now();
-function go(t){let p=Math.min(1,(t-t0)/4200),e=1-Math.pow(1-p,3);rot=start+(end-start)*e;draw();if(p<1)requestAnimationFrame(go);else{rot=end;draw();res.textContent=active[i];pos=(pos+1)%n;busy=false;spin.disabled=false}}requestAnimationFrame(go)}
+function spinWheel(){
+if(busy)return;
+busy=true;
+spin.disabled=true;
+
+let n=active.length;
+let i=pos%n;
+let s=2*Math.PI/n;
+
+/* The pointer is at the top.
+   Put the CENTER of the chosen segment exactly there. */
+let targetCenter=-Math.PI/2+(i+0.5)*s;
+let desired=-targetCenter;
+
+let current=((rot%(2*Math.PI))+2*Math.PI)%(2*Math.PI);
+
+let delta=((desired-current)%(2*Math.PI)+2*Math.PI)%(2*Math.PI);
+
+/* Extra full rotations for the animation */
+delta+=(5+Math.floor(Math.random()*3))*2*Math.PI;
+
+let start=rot;
+let end=rot+delta;
+let t0=performance.now();
+
+function go(t){
+    let p=Math.min(1,(t-t0)/4200);
+
+    /* Smooth deceleration */
+    let e=1-Math.pow(1-p,4);
+
+    rot=start+(end-start)*e;
+    draw();
+
+    if(p<1){
+        requestAnimationFrame(go);
+    }else{
+        rot=end;
+        draw();
+
+        /* Show the predetermined result */
+        res.textContent=active[i];
+
+        pos=(pos+1)%n;
+        busy=false;
+        spin.disabled=false;
+    }
+}
+
+requestAnimationFrame(go);
+}
 function parse(){return document.getElementById("sequence").value.split(/[,;\n]+|\s{2,}/).map(x=>x.trim()).filter(Boolean)}
 document.getElementById("apply").onclick=()=>{let a=parse();if(a.length<2)return;original=[...a];active=[...a];pos=0;rot=0;res.textContent="";draw()};
 document.getElementById("shuffle").onclick=()=>{if(busy)return;active=[...active];for(let i=active.length-1;i>0;i--){let j=Math.floor(Math.random()*(i+1));[active[i],active[j]]=[active[j],active[i]]}pos=0;rot=0;res.textContent="";draw()};
