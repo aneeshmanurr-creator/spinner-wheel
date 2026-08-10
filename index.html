@@ -1,0 +1,44 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Sequence Spinner</title>
+<style>
+*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden}
+body{font-family:Arial;background:#080a18;color:white}.screen{height:100dvh;width:100vw;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:10px}
+.title{font-size:clamp(22px,4vw,44px);font-weight:900}.wheel{width:min(78vh,82vw,760px);aspect-ratio:1;position:relative;margin:5px auto 8px}
+canvas{width:100%;height:100%;border-radius:50%;box-shadow:0 0 45px #000}.pointer{position:absolute;z-index:5;left:50%;top:-2px;transform:translateX(-50%);width:0;height:0;border-left:25px solid transparent;border-right:25px solid transparent;border-bottom:52px solid white;filter:drop-shadow(0 4px 4px #000)}
+.center{position:absolute;z-index:4;left:50%;top:50%;transform:translate(-50%,-50%);width:72px;height:72px;border-radius:50%;background:#11152b;border:6px solid white}
+button{border:0;border-radius:15px;color:white;font-weight:900;cursor:pointer}.spin{width:min(430px,88vw);padding:15px;font-size:clamp(20px,3vw,32px);background:#ff4f81}.spin:disabled{opacity:.45}
+.result{font-size:clamp(22px,4vw,48px);font-weight:900;color:#ffe66d;min-height:52px}
+#settings{position:fixed;right:10px;top:10px;width:42px;height:42px;border-radius:50%;background:#ffffff18;opacity:.25}
+#panel{position:fixed;inset:0;background:#090b18ee;display:none;align-items:center;justify-content:center;padding:18px;z-index:20}
+.box{width:min(520px,94vw);background:#1a1d35;border-radius:20px;padding:20px}.box h2{margin-top:0}
+textarea{width:100%;min-height:100px;border:0;border-radius:12px;padding:12px;font-size:16px}.row{display:flex;gap:8px;margin-top:10px}.row>*{flex:1;padding:12px;background:#6651e8}.gray{background:#454962!important}.info{font-size:13px;color:#c8c9da}
+</style></head>
+<body>
+<main class="screen"><div class="title">🎡 SPIN THE WHEEL</div>
+<div class="wheel"><div class="pointer"></div><canvas id="wheel" width="1000" height="1000"></canvas><div class="center"></div></div>
+<button id="spin" class="spin">SPIN</button><div id="result" class="result"></div></main>
+<button id="settings">⚙</button>
+<div id="panel"><div class="box"><h2>Wheel Setup</h2><p class="info">Set the sequence before the event. It is not shown on the main screen.</p>
+<textarea id="sequence">A, D, B, F, C, A</textarea>
+<div class="row"><button id="apply">Set Sequence</button><button id="close" class="gray">Close</button></div>
+<div class="row"><button id="shuffle">🔀 Shuffle</button><button id="undo" class="gray">↩ Undo Shuffle</button></div><p id="message" class="info"></p></div></div>
+<script>
+/* CHANGE THIS BEFORE PUBLISHING */
+const PRESET_SEQUENCE=["A","D","B","F","C","A"];
+
+const c=document.getElementById("wheel"),ctx=c.getContext("2d"),spin=document.getElementById("spin"),res=document.getElementById("result");
+let original=[...PRESET_SEQUENCE],active=[...PRESET_SEQUENCE],pos=0,rot=0,busy=false;
+const colors=["#ff5c7a","#5b8cff","#ffc857","#46d7a5","#b56cff","#ff8a4c","#45c6e8","#ef6fff","#8bd450","#ffcf5a"];
+function draw(){let n=active.length;if(!n)return;ctx.clearRect(0,0,1000,1000);let s=2*Math.PI/n,r=455;ctx.save();ctx.translate(500,500);ctx.rotate(rot);
+for(let i=0;i<n;i++){let a=-Math.PI/2+i*s,b=a+s;ctx.beginPath();ctx.moveTo(0,0);ctx.arc(0,0,r,a,b);ctx.closePath();ctx.fillStyle=colors[i%colors.length];ctx.fill();ctx.strokeStyle="#fff";ctx.lineWidth=6;ctx.stroke();ctx.save();ctx.rotate(a+s/2);ctx.textAlign="right";ctx.fillStyle="#fff";ctx.font="900 "+Math.max(24,Math.min(56,600/n))+"px Arial";ctx.shadowColor="#000";ctx.shadowBlur=5;ctx.fillText(String(active[i]).slice(0,18),r-38,18);ctx.restore()}ctx.restore()}
+function spinWheel(){if(busy)return;busy=true;spin.disabled=true;let n=active.length,i=pos%n,s=2*Math.PI/n,targetCenter=-Math.PI/2+(i+.5)*s,desired=-targetCenter,current=((rot%(2*Math.PI))+2*Math.PI)%(2*Math.PI),delta=((desired-current)%(2*Math.PI)+2*Math.PI)%(2*Math.PI)+(5+Math.floor(Math.random()*3))*2*Math.PI,start=rot,end=rot+delta,t0=performance.now();
+function go(t){let p=Math.min(1,(t-t0)/4200),e=1-Math.pow(1-p,3);rot=start+(end-start)*e;draw();if(p<1)requestAnimationFrame(go);else{rot=end;draw();res.textContent=active[i];pos=(pos+1)%n;busy=false;spin.disabled=false}}requestAnimationFrame(go)}
+function parse(){return document.getElementById("sequence").value.split(/[,;\n]+|\s{2,}/).map(x=>x.trim()).filter(Boolean)}
+document.getElementById("apply").onclick=()=>{let a=parse();if(a.length<2)return;original=[...a];active=[...a];pos=0;rot=0;res.textContent="";draw()};
+document.getElementById("shuffle").onclick=()=>{if(busy)return;active=[...active];for(let i=active.length-1;i>0;i--){let j=Math.floor(Math.random()*(i+1));[active[i],active[j]]=[active[j],active[i]]}pos=0;rot=0;res.textContent="";draw()};
+document.getElementById("undo").onclick=()=>{if(busy)return;active=[...original];pos=0;rot=0;res.textContent="";draw()};
+document.getElementById("settings").onclick=()=>{document.getElementById("sequence").value=original.join(", ");document.getElementById("panel").style.display="flex"};
+document.getElementById("close").onclick=()=>document.getElementById("panel").style.display="none";
+spin.onclick=spinWheel;draw();
+</script></body></html>
