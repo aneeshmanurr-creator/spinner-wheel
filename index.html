@@ -44,7 +44,7 @@ let s=2*Math.PI/n;
 /* The pointer is at the top.
    Put the CENTER of the chosen segment exactly there. */
 let targetCenter=-Math.PI/2+(i+0.5)*s;
-let desired=-targetCenter;
+let desired=-Math.PI/2-targetCenter;
 
 let current=((rot%(2*Math.PI))+2*Math.PI)%(2*Math.PI);
 
