@@ -7,7 +7,9 @@
 <title>Sequence Spinner</title>
 
 <style>
-*{box-sizing:border-box}
+*{
+    box-sizing:border-box
+}
 
 html,body{
     margin:0;
@@ -106,7 +108,247 @@ button{
     text-align:center
 }
 
-/* Result decision buttons */
+
+/* =========================================================
+   RESULT CELEBRATION
+   ========================================================= */
+
+#celebration{
+    position:fixed;
+    inset:0;
+    z-index:100;
+    display:none;
+    align-items:center;
+    justify-content:center;
+    flex-direction:column;
+    background:
+        radial-gradient(
+            circle at center,
+            #17245fff 0%,
+            #080a18f5 70%
+        );
+    overflow:hidden;
+}
+
+
+/* Big result name */
+
+#bigResult{
+    position:relative;
+    z-index:110;
+
+    width:96vw;
+
+    text-align:center;
+
+    font-size:
+        clamp(
+            45px,
+            12vw,
+            150px
+        );
+
+    font-weight:1000;
+
+    line-height:1.05;
+
+    color:#fff;
+
+    text-shadow:
+        0 0 10px #fff,
+        0 0 25px #ffe66d,
+        0 0 50px #ff4f81,
+        4px 5px 0 #000;
+
+    padding:20px;
+
+    animation:
+        resultPop .65s cubic-bezier(.17,.67,.35,1.4);
+}
+
+
+@keyframes resultPop{
+
+    0%{
+        transform:scale(.15);
+        opacity:0
+    }
+
+    65%{
+        transform:scale(1.12);
+        opacity:1
+    }
+
+    100%{
+        transform:scale(1);
+        opacity:1
+    }
+
+}
+
+
+/* Small text */
+
+#winnerText{
+    position:relative;
+    z-index:110;
+
+    font-size:
+        clamp(
+            18px,
+            4vw,
+            32px
+        );
+
+    font-weight:900;
+
+    color:#ffe66d;
+
+    margin-top:5px;
+
+    letter-spacing:2px;
+}
+
+
+/* Confetti canvas */
+
+#confettiCanvas{
+    position:absolute;
+    inset:0;
+    width:100%;
+    height:100%;
+    z-index:105;
+    pointer-events:none
+}
+
+
+/* Fake poppers */
+
+.popper{
+    position:absolute;
+
+    width:25px;
+    height:25px;
+
+    border-radius:50%;
+
+    z-index:106;
+
+    pointer-events:none;
+}
+
+
+/* Left popper */
+
+.popper.left{
+    left:3%;
+    top:50%;
+
+    animation:
+        popLeft .7s ease-out forwards
+}
+
+
+/* Right popper */
+
+.popper.right{
+    right:3%;
+    top:50%;
+
+    animation:
+        popRight .7s ease-out forwards
+}
+
+
+@keyframes popLeft{
+
+    0%{
+        transform:scale(.2) rotate(0);
+        opacity:1
+    }
+
+    100%{
+        transform:
+            translate(
+                45vw,
+                -45vh
+            )
+            scale(3)
+            rotate(360deg);
+
+        opacity:0
+    }
+
+}
+
+
+@keyframes popRight{
+
+    0%{
+        transform:scale(.2) rotate(0);
+        opacity:1
+    }
+
+    100%{
+        transform:
+            translate(
+                -45vw,
+                -45vh
+            )
+            scale(3)
+            rotate(-360deg);
+
+        opacity:0
+    }
+
+}
+
+
+/* Celebration decision buttons */
+
+#celebrationDecision{
+    position:absolute;
+
+    z-index:120;
+
+    bottom:7vh;
+
+    display:none;
+
+    gap:15px;
+
+    width:min(500px,88vw)
+}
+
+#celebrationDecision button{
+    flex:1;
+
+    padding:16px;
+
+    font-size:
+        clamp(
+            15px,
+            3vw,
+            22px
+        );
+
+    border-radius:16px
+}
+
+
+#celebrationRemove{
+    background:#e63946
+}
+
+
+#celebrationKeep{
+    background:#46d7a5
+}
+
+
+/* =========================================================
+   NORMAL RESULT DECISION BUTTONS
+   ========================================================= */
 
 #decision{
     display:none;
@@ -130,6 +372,11 @@ button{
     background:#46d7a5
 }
 
+
+/* =========================================================
+   SETTINGS
+   ========================================================= */
+
 #settings{
     position:fixed;
     right:10px;
@@ -149,7 +396,7 @@ button{
     align-items:center;
     justify-content:center;
     padding:18px;
-    z-index:20
+    z-index:200
 }
 
 .box{
@@ -192,16 +439,23 @@ textarea{
     font-size:13px;
     color:#c8c9da
 }
+
 </style>
 </head>
 
+
 <body>
+
 
 <main class="screen">
 
-    <div class="title">🎡 SPIN THE WHEEL</div>
+    <div class="title">
+        🎡 SPIN THE WHEEL
+    </div>
+
 
     <div class="wheel">
+
         <div class="pointer"></div>
 
         <canvas
@@ -211,15 +465,19 @@ textarea{
         </canvas>
 
         <div class="center"></div>
+
     </div>
+
 
     <button id="spin" class="spin">
         SPIN
     </button>
 
+
     <div id="result" class="result"></div>
 
-    <!-- Decision buttons appear after every result -->
+
+    <!-- Normal decision buttons -->
 
     <div id="decision">
 
@@ -236,23 +494,72 @@ textarea{
 </main>
 
 
+
 <button id="settings">
     ⚙
 </button>
 
 
+
+<!-- =====================================================
+     FULL SCREEN RESULT CELEBRATION
+     ===================================================== -->
+
+<div id="celebration">
+
+    <canvas id="confettiCanvas"></canvas>
+
+
+    <div class="popper left"></div>
+    <div class="popper right"></div>
+
+
+    <div id="winnerText">
+        🎉 SELECTED 🎉
+    </div>
+
+
+    <div id="bigResult">
+        NAME
+    </div>
+
+
+    <div id="celebrationDecision">
+
+        <button id="celebrationRemove">
+            REMOVE SLICE
+        </button>
+
+        <button id="celebrationKeep">
+            KEEP SLICE
+        </button>
+
+    </div>
+
+</div>
+
+
+
+<!-- =====================================================
+     SETTINGS PANEL
+     ===================================================== -->
+
 <div id="panel">
 
     <div class="box">
 
-        <h2>Wheel Setup</h2>
+        <h2>
+            Wheel Setup
+        </h2>
 
         <p class="info">
             Set the sequence before the event.
             It is not shown on the main screen.
         </p>
 
-        <textarea id="sequence">Adwaitha, Devika, Surya, Pravya, Gokul, Arya, Anugraha, Aneesh</textarea>
+
+        <textarea id="sequence">A, D, B, F, C, A</textarea>
+
 
         <div class="row">
 
@@ -266,6 +573,7 @@ textarea{
 
         </div>
 
+
         <div class="row">
 
             <button id="shuffle">
@@ -278,6 +586,7 @@ textarea{
 
         </div>
 
+
         <p id="message" class="info"></p>
 
     </div>
@@ -285,88 +594,130 @@ textarea{
 </div>
 
 
+
 <script>
 
-/* CHANGE THIS BEFORE PUBLISHING */
+
+/* =========================================================
+   PRESET SEQUENCE
+   ========================================================= */
 
 const PRESET_SEQUENCE=[
-    "Adwaitha",
-    "Devika",
-    "Surya",
-    "Pravya",
-    "Gokul",
-    "Arya",
-    "Anugraha",
-    "Aneesh"
+    "A",
+    "D",
+    "B",
+    "F",
+    "C",
+    "A"
 ];
 
 
-const c=document.getElementById("wheel");
-const ctx=c.getContext("2d");
 
-const spin=document.getElementById("spin");
-const res=document.getElementById("result");
+const c=
+    document.getElementById("wheel");
 
-const decision=document.getElementById("decision");
-const removeSlice=document.getElementById("removeSlice");
-const keepSlice=document.getElementById("keepSlice");
+const ctx=
+    c.getContext("2d");
 
 
-/*
-   ORIGINAL PRESET SEQUENCE
+const spin=
+    document.getElementById("spin");
 
-   This never gets modified by
-   REMOVE SLICE or KEEP SLICE.
-*/
-
-let original=[...PRESET_SEQUENCE];
+const res=
+    document.getElementById("result");
 
 
-/*
-   CURRENTLY VISIBLE WHEEL
+const decision=
+    document.getElementById("decision");
 
-   This is what the observer sees.
-*/
+const removeSlice=
+    document.getElementById("removeSlice");
 
-let active=[...PRESET_SEQUENCE];
+const keepSlice=
+    document.getElementById("keepSlice");
 
 
-/*
-   Position of the next predetermined result.
-*/
+
+/* =========================================================
+   CELEBRATION ELEMENTS
+   ========================================================= */
+
+const celebration=
+    document.getElementById("celebration");
+
+const bigResult=
+    document.getElementById("bigResult");
+
+const celebrationDecision=
+    document.getElementById("celebrationDecision");
+
+const celebrationRemove=
+    document.getElementById("celebrationRemove");
+
+const celebrationKeep=
+    document.getElementById("celebrationKeep");
+
+const confettiCanvas=
+    document.getElementById("confettiCanvas");
+
+const confettiCtx=
+    confettiCanvas.getContext("2d");
+
+
+
+/* =========================================================
+   ORIGINAL SEQUENCE
+   ========================================================= */
+
+let original=[
+    ...PRESET_SEQUENCE
+];
+
+
+
+/* =========================================================
+   CURRENT VISIBLE WHEEL
+   ========================================================= */
+
+let active=[
+    ...PRESET_SEQUENCE
+];
+
+
+
+/* Next predetermined result */
 
 let pos=0;
 
 
-/*
-   Current wheel rotation.
-*/
+/* Current wheel rotation */
 
 let rot=0;
 
 
-/*
-   Prevent multiple spins.
-*/
+/* Animation lock */
 
 let busy=false;
 
 
-/*
-   Index of the slice that produced
-   the current result.
-*/
+/* Selected slice */
 
 let selectedIndex=-1;
 
 
-/*
-   True when we are waiting for
-   REMOVE or KEEP decision.
-*/
+/* Waiting for remove/keep */
 
 let waitingForDecision=false;
 
+
+/* Confetti animation */
+
+let confettiAnimation=null;
+
+
+/* =========================================================
+   COLORS
+   ========================================================= */
 
 const colors=[
     "#ff5c7a",
@@ -383,9 +734,14 @@ const colors=[
 
 
 
+/* =========================================================
+   DRAW WHEEL
+   ========================================================= */
+
 function draw(){
 
     let n=active.length;
+
 
     ctx.clearRect(
         0,
@@ -394,11 +750,6 @@ function draw(){
         1000
     );
 
-
-    /*
-       If there are no slices left,
-       show an empty wheel.
-    */
 
     if(!n){
 
@@ -420,26 +771,38 @@ function draw(){
     }
 
 
-    let s=2*Math.PI/n;
+    let s=
+        2*Math.PI/n;
+
     let r=455;
 
 
     ctx.save();
 
-    ctx.translate(500,500);
+    ctx.translate(
+        500,
+        500
+    );
 
     ctx.rotate(rot);
 
 
     for(let i=0;i<n;i++){
 
-        let a=-Math.PI/2+i*s;
-        let b=a+s;
+        let a=
+            -Math.PI/2+
+            i*s;
+
+        let b=
+            a+s;
 
 
         ctx.beginPath();
 
-        ctx.moveTo(0,0);
+        ctx.moveTo(
+            0,
+            0
+        );
 
         ctx.arc(
             0,
@@ -453,7 +816,9 @@ function draw(){
 
 
         ctx.fillStyle=
-            colors[i%colors.length];
+            colors[
+                i%colors.length
+            ];
 
         ctx.fill();
 
@@ -467,7 +832,9 @@ function draw(){
 
         ctx.save();
 
-        ctx.rotate(a+s/2);
+        ctx.rotate(
+            a+s/2
+        );
 
         ctx.textAlign="right";
 
@@ -477,9 +844,13 @@ function draw(){
             "900 "+
             Math.max(
                 24,
-                Math.min(56,600/n)
+                Math.min(
+                    56,
+                    600/n
+                )
             )+
             "px Arial";
+
 
         ctx.shadowColor="#000";
 
@@ -487,8 +858,12 @@ function draw(){
 
 
         ctx.fillText(
-            String(active[i]).slice(0,18),
+            String(
+                active[i]
+            ).slice(0,18),
+
             r-38,
+
             18
         );
 
@@ -503,12 +878,309 @@ function draw(){
 
 
 
-function spinWheel(){
+/* =========================================================
+   CONFETTI
+   ========================================================= */
+
+let confetti=[];
+
+
+function createConfetti(){
+
+    confetti=[];
+
+
+    let count=260;
+
+
+    for(let i=0;i<count;i++){
+
+        confetti.push({
+
+            x:
+                Math.random()*
+                window.innerWidth,
+
+            y:
+                -Math.random()*
+                window.innerHeight,
+
+            width:
+                5+
+                Math.random()*9,
+
+            height:
+                7+
+                Math.random()*14,
+
+            speed:
+                3+
+                Math.random()*6,
+
+            rotation:
+                Math.random()*
+                Math.PI*2,
+
+            rotationSpeed:
+                -.15+
+                Math.random()*.3,
+
+            gravity:
+                .04+
+                Math.random()*.08,
+
+            drift:
+                -.7+
+                Math.random()*1.4,
+
+            opacity:1,
+
+            color:
+                colors[
+                    Math.floor(
+                        Math.random()*
+                        colors.length
+                    )
+                ]
+
+        });
+
+    }
+
+}
+
+
+
+/* =========================================================
+   CONFETTI ANIMATION
+   ========================================================= */
+
+function animateConfetti(){
+
+    confettiCtx.clearRect(
+        0,
+        0,
+        confettiCanvas.width,
+        confettiCanvas.height
+    );
+
+
+    for(let piece of confetti){
+
+        piece.y+=piece.speed;
+
+        piece.speed+=piece.gravity;
+
+        piece.x+=piece.drift;
+
+        piece.rotation+=
+            piece.rotationSpeed;
+
+
+        confettiCtx.save();
+
+
+        confettiCtx.translate(
+            piece.x,
+            piece.y
+        );
+
+
+        confettiCtx.rotate(
+            piece.rotation
+        );
+
+
+        confettiCtx.globalAlpha=
+            piece.opacity;
+
+
+        confettiCtx.fillStyle=
+            piece.color;
+
+
+        confettiCtx.fillRect(
+            -piece.width/2,
+            -piece.height/2,
+            piece.width,
+            piece.height
+        );
+
+
+        confettiCtx.restore();
+
+
+        if(
+            piece.y>
+            window.innerHeight+50
+        ){
+
+            piece.y=
+                -Math.random()*300;
+
+            piece.x=
+                Math.random()*
+                window.innerWidth;
+
+            piece.speed=
+                3+
+                Math.random()*5;
+
+        }
+
+    }
+
+
+    confettiAnimation=
+        requestAnimationFrame(
+            animateConfetti
+        );
+
+}
+
+
+
+/* =========================================================
+   RESIZE CONFETTI CANVAS
+   ========================================================= */
+
+function resizeConfetti(){
+
+    confettiCanvas.width=
+        window.innerWidth;
+
+    confettiCanvas.height=
+        window.innerHeight;
+
+}
+
+
+window.addEventListener(
+    "resize",
+    resizeConfetti
+);
+
+
+resizeConfetti();
+
+
+
+/* =========================================================
+   SHOW FULL SCREEN RESULT
+   ========================================================= */
+
+function showCelebration(name){
+
+    bigResult.textContent=name;
+
+
+    celebration.style.display=
+        "flex";
+
+
+    celebrationDecision.style.display=
+        "none";
+
+
+    createConfetti();
+
+
+    if(confettiAnimation){
+
+        cancelAnimationFrame(
+            confettiAnimation
+        );
+
+    }
+
+
+    animateConfetti();
+
 
     /*
-       Do not allow another spin while
-       the wheel is busy or decision is pending.
+       Popper elements are recreated
+       so their animation runs every time.
     */
+
+    document.querySelectorAll(
+        ".popper"
+    ).forEach(
+        p=>{
+
+            p.style.animation="none";
+
+            void p.offsetWidth;
+
+            if(
+                p.classList.contains("left")
+            ){
+
+                p.style.animation=
+                    "popLeft .7s ease-out forwards";
+
+            }else{
+
+                p.style.animation=
+                    "popRight .7s ease-out forwards";
+
+            }
+
+        }
+    );
+
+
+    /*
+       Show decision buttons after
+       the result has appeared.
+    */
+
+    setTimeout(
+        ()=>{
+
+            celebrationDecision.style.display=
+                "flex";
+
+        },
+        1200
+    );
+
+}
+
+
+
+/* =========================================================
+   CLOSE CELEBRATION
+   ========================================================= */
+
+function closeCelebration(){
+
+    celebration.style.display=
+        "none";
+
+
+    celebrationDecision.style.display=
+        "none";
+
+
+    if(confettiAnimation){
+
+        cancelAnimationFrame(
+            confettiAnimation
+        );
+
+        confettiAnimation=null;
+
+    }
+
+}
+
+
+
+/* =========================================================
+   SPIN WHEEL
+   ========================================================= */
+
+function spinWheel(){
 
     if(busy)return;
 
@@ -524,33 +1196,29 @@ function spinWheel(){
     spin.disabled=true;
 
 
-    let n=active.length;
+    let n=
+        active.length;
 
 
     /*
-       IMPORTANT:
-
-       Get the next result directly
-       from the ORIGINAL preset sequence.
+       Next result comes from ORIGINAL
+       predetermined sequence.
     */
 
-    let wantedResult=original[pos];
+    let wantedResult=
+        original[pos];
 
 
     /*
-       Find that result in the currently
-       visible wheel.
-
-       This also works when there are
-       duplicate values.
+       Find the corresponding visible
+       slice.
     */
 
-    let i=active.indexOf(wantedResult);
+    let i=
+        active.indexOf(
+            wantedResult
+        );
 
-
-    /*
-       Safety check.
-    */
 
     if(i===-1){
 
@@ -559,17 +1227,19 @@ function spinWheel(){
         spin.disabled=false;
 
         return;
+
     }
 
 
-    let s=2*Math.PI/n;
+    let s=
+        2*Math.PI/n;
 
 
     /*
-       Pointer is at the TOP.
+       Pointer is at TOP.
 
-       Put the CENTER of the selected
-       slice exactly at the pointer.
+       Center of selected slice goes
+       exactly under the pointer.
     */
 
     let targetCenter=
@@ -577,44 +1247,49 @@ function spinWheel(){
         (i+0.5)*s;
 
 
-    /*
-       Correct pointer alignment.
-    */
-
     let desired=
         -Math.PI/2-
         targetCenter;
 
 
     let current=
-        ((rot%(2*Math.PI))+
-        2*Math.PI)%
+        (
+            (rot%(2*Math.PI))+
+            2*Math.PI
+        )%
         (2*Math.PI);
 
 
     let delta=
-        ((desired-current)%
-        (2*Math.PI)+
-        2*Math.PI)%
+        (
+            (desired-current)%
+            (2*Math.PI)+
+            2*Math.PI
+        )%
         (2*Math.PI);
 
 
     /*
-       Extra full rotations
-       for the animation.
+       Extra rotations.
     */
 
     delta+=
-        (5+
-        Math.floor(Math.random()*3))
-        *2*Math.PI;
+        (
+            5+
+            Math.floor(
+                Math.random()*3
+            )
+        )*
+        2*Math.PI;
 
 
     let start=rot;
 
-    let end=rot+delta;
+    let end=
+        rot+delta;
 
-    let t0=performance.now();
+    let t0=
+        performance.now();
 
 
 
@@ -627,12 +1302,11 @@ function spinWheel(){
             );
 
 
-        /*
-           Smooth deceleration.
-        */
-
         let e=
-            1-Math.pow(1-p,4);
+            1-Math.pow(
+                1-p,
+                4
+            );
 
 
         rot=
@@ -645,7 +1319,9 @@ function spinWheel(){
 
         if(p<1){
 
-            requestAnimationFrame(go);
+            requestAnimationFrame(
+                go
+            );
 
         }else{
 
@@ -655,64 +1331,68 @@ function spinWheel(){
 
 
             /*
-               Show the predetermined result.
+               Show normal result.
             */
 
             res.textContent=
                 wantedResult;
 
 
-            /*
-               Remember which visible slice
-               produced this result.
-            */
-
             selectedIndex=i;
 
 
             /*
-               Move to the next predetermined
+               Move to next predetermined
                result.
-
-               This happens regardless of
-               REMOVE or KEEP.
             */
 
             pos++;
 
 
-            /*
-               Show the decision buttons.
-            */
-
             waitingForDecision=true;
 
-            decision.style.display="flex";
+
+            busy=false;
 
 
             /*
-               Keep SPIN disabled until the
-               observer chooses REMOVE or KEEP.
+               Hide normal buttons because
+               full-screen result is coming.
             */
+
+            decision.style.display=
+                "none";
+
 
             spin.disabled=true;
 
-            busy=false;
+
+            /*
+               FULL SCREEN CELEBRATION
+            */
+
+            showCelebration(
+                wantedResult
+            );
+
         }
 
     }
 
 
-    requestAnimationFrame(go);
+    requestAnimationFrame(
+        go
+    );
+
 }
 
 
 
-/*
-   REMOVE SLICE
-*/
+/* =========================================================
+   REMOVE FROM FULL SCREEN
+   ========================================================= */
 
-removeSlice.onclick=()=>{
+celebrationRemove.onclick=()=>{
 
     if(!waitingForDecision)return;
 
@@ -736,14 +1416,21 @@ removeSlice.onclick=()=>{
 
 
     /*
-       Hide decision buttons.
+       Close full-screen celebration.
     */
 
-    decision.style.display="none";
+    closeCelebration();
 
 
     /*
-       Reset visual rotation.
+       Clear normal result.
+    */
+
+    res.textContent="";
+
+
+    /*
+       Reset wheel rotation.
     */
 
     rot=0;
@@ -752,8 +1439,7 @@ removeSlice.onclick=()=>{
 
 
     /*
-       If more predetermined results
-       remain, allow the next spin.
+       Allow next spin if results remain.
     */
 
     if(
@@ -773,19 +1459,19 @@ removeSlice.onclick=()=>{
 
 
 
-/*
-   KEEP SLICE
-*/
+/* =========================================================
+   KEEP SLICE FROM FULL SCREEN
+   ========================================================= */
 
-keepSlice.onclick=()=>{
+celebrationKeep.onclick=()=>{
 
     if(!waitingForDecision)return;
 
 
     /*
-       Do NOT remove anything.
+       Keep the selected slice.
 
-       The slice remains on the wheel.
+       Nothing is removed from the wheel.
     */
 
     selectedIndex=-1;
@@ -794,14 +1480,21 @@ keepSlice.onclick=()=>{
 
 
     /*
-       Hide decision buttons.
+       Close full-screen celebration.
     */
 
-    decision.style.display="none";
+    closeCelebration();
 
 
     /*
-       Reset visual rotation.
+       Clear normal result.
+    */
+
+    res.textContent="";
+
+
+    /*
+       Reset wheel rotation.
     */
 
     rot=0;
@@ -810,7 +1503,7 @@ keepSlice.onclick=()=>{
 
 
     /*
-       Allow the next predetermined result.
+       Allow the next spin.
     */
 
     if(
@@ -829,6 +1522,10 @@ keepSlice.onclick=()=>{
 };
 
 
+
+/* =========================================================
+   PARSE SEQUENCE
+   ========================================================= */
 
 function parse(){
 
@@ -843,9 +1540,9 @@ function parse(){
 
 
 
-/*
+/* =========================================================
    SET SEQUENCE
-*/
+   ========================================================= */
 
 document.getElementById("apply").onclick=()=>{
 
@@ -855,14 +1552,14 @@ document.getElementById("apply").onclick=()=>{
 
 
     /*
-       Replace original preset sequence.
+       Replace original sequence.
     */
 
     original=[...a];
 
 
     /*
-       Create fresh visible wheel.
+       Create a fresh visible wheel.
     */
 
     active=[...a];
@@ -876,11 +1573,19 @@ document.getElementById("apply").onclick=()=>{
 
     waitingForDecision=false;
 
+    busy=false;
+
+
     res.textContent="";
 
     decision.style.display="none";
 
+    celebration.style.display="none";
+
+    celebrationDecision.style.display="none";
+
     spin.disabled=false;
+
 
     draw();
 
@@ -888,9 +1593,9 @@ document.getElementById("apply").onclick=()=>{
 
 
 
-/*
+/* =========================================================
    SHUFFLE
-*/
+   ========================================================= */
 
 document.getElementById("shuffle").onclick=()=>{
 
@@ -902,7 +1607,8 @@ document.getElementById("shuffle").onclick=()=>{
     /*
        Shuffle ONLY the visible wheel.
 
-       ORIGINAL sequence is NOT changed.
+       The original predetermined sequence
+       remains unchanged.
     */
 
     active=[...active];
@@ -941,9 +1647,9 @@ document.getElementById("shuffle").onclick=()=>{
 
 
 
-/*
+/* =========================================================
    UNDO SHUFFLE
-*/
+   ========================================================= */
 
 document.getElementById("undo").onclick=()=>{
 
@@ -956,8 +1662,7 @@ document.getElementById("undo").onclick=()=>{
        Restore the remaining items from
        the original sequence.
 
-       Already completed results stay
-       completed.
+       Already completed results stay completed.
     */
 
     let remainingOriginal=
@@ -979,11 +1684,16 @@ document.getElementById("undo").onclick=()=>{
 
 
 
-/*
+/* =========================================================
    SETTINGS BUTTON
-*/
+   ========================================================= */
 
 document.getElementById("settings").onclick=()=>{
+
+    if(busy)return;
+
+    if(waitingForDecision)return;
+
 
     document.getElementById("sequence").value=
         original.join(", ");
@@ -996,9 +1706,9 @@ document.getElementById("settings").onclick=()=>{
 
 
 
-/*
+/* =========================================================
    CLOSE SETTINGS
-*/
+   ========================================================= */
 
 document.getElementById("close").onclick=()=>{
 
@@ -1009,16 +1719,17 @@ document.getElementById("close").onclick=()=>{
 
 
 
-/*
+/* =========================================================
    SPIN BUTTON
-*/
+   ========================================================= */
 
 spin.onclick=spinWheel;
 
 
-/*
-   Initial drawing.
-*/
+
+/* =========================================================
+   INITIAL DRAW
+   ========================================================= */
 
 draw();
 
